@@ -1,0 +1,4 @@
+Flask
+flask_sqlalchemy
+pymysql
+#pandas, matplotlib can be added to be used for specific operations
