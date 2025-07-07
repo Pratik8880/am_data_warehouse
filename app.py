@@ -14,7 +14,7 @@ app.register_blueprint(merged_bp)
 if __name__ == '__main__':
     app.run(debug=True)
 
-@app.route("/")
-def home():
-    return "✅ Flask API is running!"
 
+@app.route('/')
+def index():
+    return render_template('index.html')

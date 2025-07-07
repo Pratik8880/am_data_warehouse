@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>AM Data Warehouse</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; }
+        table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 5px; text-align: left; }
+        button { margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>$$ AM Data Warehouse Frontend $$</h1>
+
+    <!-- Add Supplier -->
+    <form id="supplierForm">
+        <h3>Add Supplier</h3>
+        Name: <input type="text" name="name" required>
+        Contact Info: <input type="text" name="contact_info" required>
+        <button type="submit">Add Supplier</button>
+    </form>
+
+    <!-- Add Material -->
+    <form id="materialForm">
+        <h3>Add Material</h3>
+        Name: <input type="text" name="name" required>
+        Cost per kg: <input type="number" step="0.01" name="cost_per_kg" required>
+        Supplier ID: <input type="number" name="supplier_id" required>
+        <button type="submit">Add Material</button>
+    </form>
+
+    <!-- Add Printer -->
+    <form id="printerForm">
+        <h3>Add Printer</h3>
+        Model: <input type="text" name="model" required>
+        Location: <input type="text" name="location" required>
+        Status: <input type="text" name="status" required>
+        <button type="submit">Add Printer</button>
+    </form>
+
+    <!-- Add User -->
+    <form id="userForm">
+        <h3>Add User</h3>
+        Name: <input type="text" name="name" required>
+        Role: <input type="text" name="role" required>
+        <button type="submit">Add User</button>
+    </form>
+
+    <!-- Add Print Job -->
+    <form id="printJobForm">
+        <h3>Add Print Job</h3>
+        Date (YYYY-MM-DD): <input type="text" name="date" required>
+        Printer ID: <input type="number" name="printer_id" required>
+        Material ID: <input type="number" name="material_id" required>
+        User ID: <input type="number" name="user_id" required>
+        Part Name: <input type="text" name="part_name" required>
+        Weight (g): <input type="number" step="0.01" name="weight_g" required>
+        Status: <input type="text" name="status" required>
+        <button type="submit">Add Print Job</button>
+    </form>
+
+    <!-- View Merged Summary -->
+    <button onclick="loadMergedSummary()">Load Merged Summary</button>
+    <table id="mergedTable">
+        <thead id="mergedHead"></thead>
+        <tbody id="mergedBody"></tbody>
+    </table>
+
+    <script>
+        async function postData(url = '', data = {}) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+
+        document.getElementById('supplierForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = { name: form.name.value, contact_info: form.contact_info.value };
+            alert(await JSON.stringify(await postData('/add/supplier', data)));
+        });
+
+        document.getElementById('materialForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                name: form.name.value,
+                cost_per_kg: parseFloat(form.cost_per_kg.value),
+                supplier_id: parseInt(form.supplier_id.value)
+            };
+            alert(await JSON.stringify(await postData('/add/material', data)));
+        });
+
+        document.getElementById('printerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                model: form.model.value,
+                location: form.location.value,
+                status: form.status.value
+            };
+            alert(await JSON.stringify(await postData('/add/printer', data)));
+        });
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = { name: form.name.value, role: form.role.value };
+            alert(await JSON.stringify(await postData('/add/user', data)));
+        });
+
+        document.getElementById('printJobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                date: form.date.value,
+                printer_id: parseInt(form.printer_id.value),
+                material_id: parseInt(form.material_id.value),
+                user_id: parseInt(form.user_id.value),
+                part_name: form.part_name.value,
+                weight_g: parseFloat(form.weight_g.value),
+                status: form.status.value
+            };
+            alert(await JSON.stringify(await postData('/add/print_job', data)));
+        });
+
+        async function loadMergedSummary() {
+            const res = await fetch('/merged/summary');
+            const data = await res.json();
+            const head = document.getElementById('mergedHead');
+            const body = document.getElementById('mergedBody');
+            body.innerHTML = '';
+            head.innerHTML = '';
+            if (data.length > 0) {
+                head.innerHTML = '<tr>' + Object.keys(data[0]).map(key => `<th>${key}</th>`).join('') + '</tr>';
+                data.forEach(row => {
+                    body.innerHTML += '<tr>' + Object.values(row).map(val => `<td>${val}</td>`).join('') + '</tr>';
+                });
+            } else {
+                head.innerHTML = '<tr><th>No data</th></tr>';
+            }
+        }
+    </script>
+</body>
+</html>
